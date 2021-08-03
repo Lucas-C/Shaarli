@@ -62,10 +62,12 @@ class PluginIssoTest extends TestCase
                 [
                     'id' => 12,
                     'url' => $str,
+                    'title' => 'Bookmarked web page title',
+                    'shorturl' => 'abc123',
                     'created' => DateTime::createFromFormat(Bookmark::LINK_DATE_FORMAT, $date),
-                ]
-            ]
-        ];
+                )
+            )
+        );
 
         $data = hook_isso_render_linklist($data, $conf);
 
@@ -81,7 +83,10 @@ class PluginIssoTest extends TestCase
         ));
         $this->assertNotFalse(strpos(
             $data['plugin_end_zone'][0],
-            'data-title="' . $data['links'][0]['id'] . '"'
+        ));
+        $this->assertNotFalse(strpos(
+            $data['plugin_end_zone'][0],
+            'data-title="'. $data['links'][0]['title'] .'"'
         ));
         $this->assertNotFalse(strpos($data['plugin_end_zone'][0], 'embed.min.js'));
     }
