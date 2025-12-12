@@ -25,7 +25,7 @@
             </div>
             <label for="lf_description"><i>Description</i></label>
             <div class="{if="$retrieve_description"}{$asyncLoadClass}{/if}">
-              <textarea name="lf_description" id="lf_description" rows="4" cols="25">{$link.description}</textarea>
+              <textarea name="lf_description" id="lf_description" rows="8" cols="25">{$link.description}</textarea>
               <div class="icon-container">
                 <i class="loader"></i>
               </div>
@@ -75,4 +75,67 @@
 </div>
 {include="page.footer"}
 {if="$link_is_new && $async_metadata"}<script src="{$asset_path}/js/metadata.min.js?v={$version_hash}#"></script>{/if}</body>
+{/if}
+<script src="inc/awesomplete.min.js#"></script>
+<script src="inc/awesomplete-multiple-tags.js#"></script>
+<script>
+    awesompleteUniqueTag('#lf_tags');
+
+
+    // auto-add parent tags - Added by Lucas, cf. https://github.com/LeaVerou/awesomplete/blob/v1.0.0/awesomplete.js
+    function ajax (args) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(args.method, args.url, /*async=*/true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) { return; }
+            if (xhr.status !== 200) { console.error(xhr); return; }
+            args.success(xhr.responseText);
+        };
+        xhr.send(args.data);
+    }
+    var tags = document.querySelector('#lf_tags');
+    ajax({method: 'GET',
+          url: 'bookmarks_ordered_hierarchy.json',
+          success: function (data) {
+        var parentTags = {}
+        function populateParentTagsWithNode(node, parentName) {
+            for (let k in node) {
+                var v = node[k];
+                k = k.replace(/ /g, '_');
+                if (parentName) { parentTags[k] = parentName; }
+                populateParentTagsWithNode(v, k);
+            }
+        }
+        populateParentTagsWithNode(JSON.parse(data));
+        var selectedTag;
+        tags.addEventListener('awesomplete-select', function(evt) {
+            selectedTag = evt.text;
+        });
+        tags.addEventListener('awesomplete-selectcomplete', function() {
+            var tag = selectedTag;
+            while (tag = parentTags[tag]) {
+                if (!this.value.split(' ').includes(tag)) {
+                    awesomplete.replace(tag); // tag is added
+                }
+            }
+        });
+    }});
+    var description = document.getElementById('lf_description');
+    if (!description.value && !tags.value) {
+        ajax({method: 'POST',
+              url: 'https://chezsoi.org/shaarli/web_page_summarizer',
+              data: '{$link.url}',
+              success: function (data) {
+            var data = JSON.parse(data);
+            console.log(data);
+            description.value = data.summary_luhn;
+            for (let tag of data.tag_suggestions_topia || data.tags_algorithmia || data.tags_opencalais) {
+                if (tag.length >= 3) {
+                    awesomplete.replace(tag.replace(/ /g, '_')); // tag is added
+                }
+            }
+        }});
+    }
+</script>
+</body>
 </html>

@@ -19,6 +19,9 @@
             {$shaarlititle}
           </a>
         </li>
+        <li class="pure-menu-item">
+          <p style="color: #252525; margin: 0; padding: .8em 1em">Microblogging auto-hébergé</p>
+        </li>
         {if="$is_logged_in || $openshaarli"}
           <li class="pure-menu-item">
             <a href="{$base_path}/admin/add-shaare" class="pure-menu-link" id="shaarli-menu-shaare">
@@ -37,8 +40,13 @@
             <a href="{$base_path}/picture-wall?{function="ltrim($searchcrits, '&')"}" class="pure-menu-link">{'Picture wall'|t}</a>
           </li>
         {/if}
+        <!-- Lucas 12/12/2025 : je remplace le bouton "Quotidien", que je trouve peu intéressant, par une micro-description :
         <li class="pure-menu-item" id="shaarli-menu-daily">
           <a href="{$base_path}/daily" class="pure-menu-link">{'Daily'|t}</a>
+        </li>
+        -->
+        <li class="pure-menu-item">
+          <a href="https://chezsoi.org/lucas/blog/" class="pure-menu-link" style="color: #252525">&gt; Mon blog &lt;</a>
         </li>
         {loop="$plugins_header.buttons_toolbar"}
           <li class="pure-menu-item shaarli-menu-plugin">
